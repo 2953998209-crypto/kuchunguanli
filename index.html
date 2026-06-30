@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>湖北盐业荆州分公司营销中心 — 库存进销存看板系统 v3.0 云端版</title>
+<title>湖北盐业荆州分公司营销中心 — 库存进销存看板系统 v4.0</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
@@ -100,6 +100,7 @@ tr:hover{background:rgba(0,229,255,.03)}
 .pc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all .25s}
 .pc:hover{transform:translateY(-2px);box-shadow:0 5px 16px rgba(0,229,255,.1)}
 .pc.sel{border-color:var(--cyan);background:rgba(0,229,255,.07)}
+/* 寄存品种卡片网格 5列 */
 .csg{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px}
 .csc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all .25s}
 .csc:hover{transform:translateY(-2px);box-shadow:0 5px 16px rgba(0,229,255,.12)}
@@ -117,8 +118,31 @@ tr:hover{background:rgba(0,229,255,.03)}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(0,229,255,.18);border-radius:3px}
 .up{color:var(--green)}.dn{color:var(--red)}.fl{color:var(--muted)}
 .sn{color:var(--green)}.sl{color:var(--gold)}.sc{color:var(--red)}.se{color:var(--blue)}
-@media(max-width:1400px){.kr{grid-template-columns:repeat(3,1fr)}.cr{grid-template-columns:1fr 1fr}.mg{grid-template-columns:repeat(4,1fr)}.pg2{grid-template-columns:repeat(4,1fr)}.csg{grid-template-columns:repeat(4,1fr)}}
-@media(max-width:900px){.kr{grid-template-columns:repeat(2,1fr)}.cr{grid-template-columns:1fr}.mg{grid-template-columns:repeat(2,1fr)}.pg2{grid-template-columns:repeat(2,1fr)}.csg{grid-template-columns:repeat(2,1fr)}}
+/* 借货缘由标签 */
+.reason-tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;background:rgba(41,121,255,.18);color:var(--blue);border:1px solid rgba(41,121,255,.25)}
+/* 当日盘点区块 */
+.day-inv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.day-inv-card{background:rgba(0,229,255,.04);border:1px solid var(--border2);border-radius:8px;padding:10px;text-align:center}
+.day-inv-card .div{font-size:18px;font-weight:700;color:var(--cyan)}
+.day-inv-card .dlabel{font-size:10px;color:var(--sub);margin-top:2px}
+/* 客户经理卡片 */
+.mgr-day-card{background:rgba(41,121,255,.06);border:1px solid rgba(41,121,255,.2);border-radius:8px;padding:10px;margin-bottom:8px}
+.mgr-day-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.mgr-day-name{font-size:13px;font-weight:700;color:var(--blue)}
+/* 寄存品种分组标题 */
+.cs-group-head{font-size:13px;font-weight:700;color:var(--gold);padding:8px 10px;background:rgba(255,193,7,.06);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;margin-bottom:8px}
+/* 月度明细盘点表格区 */
+.month-inv-section{margin-bottom:12px}
+/* 盘点汇总卡片(寄存) */
+.cs-sum-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
+.cs-sum-card{background:rgba(255,193,7,.04);border:1px solid rgba(255,193,7,.18);border-radius:8px;padding:10px;text-align:center}
+.cs-sum-card .csv{font-size:20px;font-weight:700;color:var(--gold)}
+.cs-sum-card .csl{font-size:10px;color:var(--sub);margin-top:2px}
+.cs-sum-card .csd{font-size:10px;margin-top:3px}
+/* 标签页标题分组 */
+.section-label{font-size:11px;color:var(--gold);background:rgba(255,193,7,.08);padding:3px 10px;border-radius:4px;border:1px solid rgba(255,193,7,.2)}
+@media(max-width:1400px){.kr{grid-template-columns:repeat(3,1fr)}.cr{grid-template-columns:1fr 1fr}.mg{grid-template-columns:repeat(4,1fr)}.pg2{grid-template-columns:repeat(4,1fr)}.csg{grid-template-columns:repeat(4,1fr)}.cs-sum-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:900px){.kr{grid-template-columns:repeat(2,1fr)}.cr{grid-template-columns:1fr}.mg{grid-template-columns:repeat(2,1fr)}.pg2{grid-template-columns:repeat(2,1fr)}.csg{grid-template-columns:repeat(2,1fr)}.cs-sum-grid{grid-template-columns:repeat(2,1fr)}.day-inv-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -131,7 +155,7 @@ tr:hover{background:rgba(0,229,255,.03)}
 <div class="hd">
   <div style="display:flex;align-items:center;gap:12px">
     <div class="hd-logo">盐</div>
-    <div><div class="hd-title">湖北盐业集团荆州分公司营销中心</div><div class="hd-sub">库存进销存看板系统 v2.0 · 在线协同版</div></div>
+    <div><div class="hd-title">湖北盐业集团荆州分公司营销中心</div><div class="hd-sub">库存进销存看板系统 v4.0 · 在线协同版</div></div>
   </div>
   <div style="display:flex;align-items:center;gap:14px">
     <div><div class="hd-clock" id="hclock">--:--:--</div><div class="hd-date" id="hdate"></div></div>
@@ -196,7 +220,7 @@ tr:hover{background:rgba(0,229,255,.03)}
   </div>
 </div>
 
-<!-- ========= TAB1: 借货进出库 ========= -->
+<!-- ========= TAB1: 借货进出库（优化版）========= -->
 <div class="panel" id="p1">
   <div class="card">
     <div class="ch"><div class="ct2">导入借货记录Excel（云端解析，多端同步）</div></div>
@@ -207,6 +231,33 @@ tr:hover{background:rgba(0,229,255,.03)}
       <input type="file" id="ib2" accept=".xlsx,.xls" onchange="importBorrowExcel(this)" style="display:none">
     </div>
   </div>
+
+  <!-- 当日按天盘点 -->
+  <div class="card">
+    <div class="ch">
+      <div class="ct2">📅 按天盘点各产品库存</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <label style="font-size:12px;color:var(--sub);margin:0">盘点日期：</label>
+        <input type="date" id="b1-date" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:rgba(16,24,44,.85);color:var(--text);font-size:13px" onchange="rDayInv()">
+        <button class="btn btn-sm" onclick="rDayInv()">查询</button>
+        <button class="btn btn-sm" onclick="setB1Today()">今日</button>
+        <button class="btn btn-sm" onclick="adjB1Day(-1)">◀ 前一天</button>
+        <button class="btn btn-sm" onclick="adjB1Day(1)">后一天 ▶</button>
+      </div>
+    </div>
+    <div id="day-inv-content"><div style="text-align:center;padding:30px;color:var(--muted)">请选择日期查看当天各产品库存结存</div></div>
+  </div>
+
+  <!-- 各客户经理当天借货记录 -->
+  <div class="card">
+    <div class="ch">
+      <div class="ct2">👤 客户经理当天借货记录</div>
+      <span class="section-label" id="b1-mgr-date-label">请先选择上方日期</span>
+    </div>
+    <div id="mgr-day-records"><div style="text-align:center;padding:20px;color:var(--muted)">请先选择日期</div></div>
+  </div>
+
+  <!-- 借货明细表 -->
   <div class="card">
     <div class="ch">
       <div class="ct2">借货进出库记录明细</div>
@@ -215,13 +266,20 @@ tr:hover{background:rgba(0,229,255,.03)}
         <select id="br-mon" onchange="brP=1;rBT()"><option value="">全部月份</option></select>
         <select id="br-prod" onchange="brP=1;rBT()"><option value="">全部品类</option></select>
         <select id="br-type" onchange="brP=1;rBT()"><option value="">全部类型</option><option value="in">入库</option><option value="out">出库</option><option value="balance">结存</option></select>
-        <input type="text" id="br-s" placeholder="搜索摘要..." oninput="brP=1;rBT()" style="width:120px">
+        <input type="date" id="br-date-f" placeholder="开始日期" onchange="brP=1;rBT()" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:rgba(16,24,44,.8);color:var(--text);font-size:12px">
+        <input type="date" id="br-date-t" placeholder="结束日期" onchange="brP=1;rBT()" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:rgba(16,24,44,.8);color:var(--text);font-size:12px">
+        <input type="text" id="br-s" placeholder="搜索摘要/缘由..." oninput="brP=1;rBT()" style="width:130px">
         <button class="btn btn-p btn-sm" onclick="oBM(-1)">＋ 新增</button>
         <button class="btn btn-sm" onclick="expBCSV()">导出CSV</button>
       </div>
     </div>
     <div class="tw"><table id="borrow-tbl">
-      <thead><tr><th>日期</th><th>品类名称</th><th>摘要/客户</th><th>入库(件)</th><th>出库(件)</th><th>期末结存</th><th>客户经理</th><th>备注</th><th>操作</th></tr></thead>
+      <thead><tr>
+        <th>日期</th><th>品类名称</th>
+        <th>客户/摘要</th><th>借货缘由</th>
+        <th>入库(件)</th><th>出库(件)</th><th>期末结存</th>
+        <th>客户经理</th><th>备注</th><th>操作</th>
+      </tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="pg" id="bpg"></div>
@@ -252,7 +310,7 @@ tr:hover{background:rgba(0,229,255,.03)}
       </div>
     </div>
     <div class="tw"><table id="ledger-tbl">
-      <thead><tr><th>日期</th><th>品类名称</th><th>类别</th><th>摘要</th><th>入库</th><th>出库</th><th>期末结存</th><th>客户经理</th><th>库存状态</th><th>备注</th></tr></thead>
+      <thead><tr><th>日期</th><th>品类名称</th><th>类别</th><th>客户/摘要</th><th>借货缘由</th><th>入库</th><th>出库</th><th>期末结存</th><th>客户经理</th><th>库存状态</th><th>备注</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="pg" id="lpg"></div>
@@ -263,19 +321,56 @@ tr:hover{background:rgba(0,229,255,.03)}
   </div>
 </div>
 
-<!-- ========= TAB3: 寄存看板 ========= -->
+<!-- ========= TAB3: 寄存看板（优化版）========= -->
 <div class="panel" id="p3">
   <div class="kr" id="cs-kpi"></div>
+
+  <!-- 10个固定品种汇总卡片 -->
   <div class="card">
     <div class="ch">
-      <div class="ct2">寄存品种汇总 <span style="font-size:11px;color:var(--muted);font-weight:400">（点击筛选明细）</span></div>
+      <div class="ct2">📦 寄存品种汇总看板 <span style="font-size:11px;color:var(--muted);font-weight:400">（点击筛选明细记录）</span></div>
       <div style="display:flex;gap:6px">
         <button class="btn btn-au btn-sm" onclick="oCSM(-1)">＋ 新增品种</button>
         <button class="btn btn-p btn-sm" onclick="oCRM(-1)">＋ 录入变动</button>
+        <button class="btn btn-sm" onclick="genReport()">📄 生成盘点汇总表</button>
       </div>
     </div>
     <div class="csg" id="cs-cards"></div>
   </div>
+
+  <!-- 月度/每日明细盘点区 -->
+  <div class="card">
+    <div class="ch">
+      <div class="ct2">📊 各客户经理寄存明细分析</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select id="cs-mgr-pf" onchange="rCSMgrDetail()" style="padding:5px 9px;border-radius:6px;border:1px solid var(--border);background:rgba(16,24,44,.8);color:var(--text);font-size:12px"><option value="">全部客户经理</option></select>
+        <select id="cs-mgr-prod-pf" onchange="rCSMgrDetail()" style="padding:5px 9px;border-radius:6px;border:1px solid var(--border);background:rgba(16,24,44,.8);color:var(--text);font-size:12px"><option value="">全部品种</option></select>
+        <input type="date" id="cs-mgr-from" oninput="rCSMgrDetail()" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:rgba(16,24,44,.8);color:var(--text);font-size:12px">
+        <input type="date" id="cs-mgr-to" oninput="rCSMgrDetail()" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:rgba(16,24,44,.8);color:var(--text);font-size:12px">
+        <button class="btn btn-sm" onclick="resetCSMgrFilter()">重置</button>
+      </div>
+    </div>
+    <div id="cs-mgr-detail-content"></div>
+  </div>
+
+  <!-- 每日/月度盘点 -->
+  <div class="card">
+    <div class="ch">
+      <div class="ct2">📅 每日/月度盘点明细</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select id="cs-period-type" onchange="rCSPeriod()" style="padding:5px 9px;border-radius:6px;border:1px solid var(--border);background:rgba(16,24,44,.8);color:var(--text);font-size:12px">
+          <option value="day">按日查看</option>
+          <option value="month">按月汇总</option>
+        </select>
+        <input type="date" id="cs-period-date" oninput="rCSPeriod()" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:rgba(16,24,44,.8);color:var(--text);font-size:12px">
+        <select id="cs-period-mon" onchange="rCSPeriod()" style="padding:5px 9px;border-radius:6px;border:1px solid var(--border);background:rgba(16,24,44,.8);color:var(--text);font-size:12px"><option value="">选择月份</option></select>
+        <button class="btn btn-sm" onclick="setCSPeriodToday()">今日</button>
+      </div>
+    </div>
+    <div id="cs-period-content"><div style="text-align:center;padding:24px;color:var(--muted)">请选择日期/月份进行盘点</div></div>
+  </div>
+
+  <!-- Excel导入 -->
   <div class="card">
     <div class="ch"><div class="ct2">导入寄存汇总表Excel（云端解析，多端同步）</div></div>
     <div class="iz" onclick="document.getElementById('ic2').click()">
@@ -285,37 +380,33 @@ tr:hover{background:rgba(0,229,255,.03)}
       <input type="file" id="ic2" accept=".xlsx,.xls" onchange="importConsignExcel(this)" style="display:none">
     </div>
   </div>
+
+  <!-- 图表区 -->
   <div class="cr">
     <div class="card"><div class="ct2">寄存品种数量占比</div><div class="cb" id="c-cspie"></div></div>
     <div class="card"><div class="ct2">寄存变动趋势(月度)</div><div class="cb" id="c-cstrend"></div></div>
-    <div class="card"><div class="ct2">客户/摘要寄存量排行</div><div class="cb" id="c-cscust"></div></div>
+    <div class="card"><div class="ct2">客户经理寄存量排行</div><div class="cb" id="c-cscust"></div></div>
   </div>
+
+  <!-- 寄存记录明细 -->
   <div class="card">
     <div class="ch">
       <div class="ct2">寄存记录明细</div>
       <div class="fb" style="margin-bottom:0">
         <select id="cs-pf" onchange="csP=1;rCT()"><option value="">全部品种</option></select>
+        <select id="cs-mgr-f" onchange="csP=1;rCT()"><option value="">全部客户经理</option></select>
         <select id="cs-tf" onchange="csP=1;rCT()"><option value="">全部</option><option value="in">寄入</option><option value="out">取出</option></select>
-        <input type="text" id="cs-s" placeholder="搜索摘要/客户..." oninput="csP=1;rCT()" style="width:130px">
+        <input type="date" id="cs-df" onchange="csP=1;rCT()" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:rgba(16,24,44,.8);color:var(--text);font-size:12px">
+        <input type="date" id="cs-dt" onchange="csP=1;rCT()" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:rgba(16,24,44,.8);color:var(--text);font-size:12px">
+        <input type="text" id="cs-s" placeholder="搜索客户/摘要..." oninput="csP=1;rCT()" style="width:130px">
         <button class="btn btn-sm" onclick="expCSCSV()">导出CSV</button>
-        <button class="btn btn-au btn-sm" onclick="genReport()">📄 生成盘点汇总表</button>
       </div>
     </div>
     <div class="tw"><table id="cs-tbl">
-      <thead><tr><th>日期</th><th>品种</th><th>凭证号</th><th>摘要/客户</th><th>期初</th><th>寄入</th><th>取出</th><th>期末</th><th>备注</th><th>操作</th></tr></thead>
+      <thead><tr><th>日期</th><th>品种</th><th>客户经理</th><th>凭证号</th><th>客户/摘要</th><th>期初</th><th>寄入</th><th>取出</th><th>期末</th><th>备注</th><th>操作</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="pg" id="cspg"></div>
-  </div>
-  <div class="card">
-    <div class="ch">
-      <div class="ct2">客户寄存明细查询</div>
-      <input type="text" id="cs-cust-s" placeholder="输入客户/摘要搜索..." oninput="rCCT()" style="padding:5px 9px;border-radius:6px;border:1px solid var(--border);background:rgba(16,24,44,.8);color:var(--text);font-size:12px;width:200px">
-    </div>
-    <div class="tw"><table id="cust-cs-tbl">
-      <thead><tr><th>客户/摘要</th><th>品种名称</th><th>累计寄入</th><th>累计取出</th><th>当前寄存量</th><th>最近日期</th><th>状态</th></tr></thead>
-      <tbody></tbody>
-    </table></div>
   </div>
 </div>
 
@@ -355,6 +446,7 @@ tr:hover{background:rgba(0,229,255,.03)}
 </div><!-- /ct -->
 
 <!-- ===== MODALS ===== -->
+<!-- 借货记录弹窗 - 增加借货缘由字段 -->
 <div class="mo" id="bm">
   <div class="md">
     <h3 id="bm-title">📝 新增借货记录</h3>
@@ -362,19 +454,35 @@ tr:hover{background:rgba(0,229,255,.03)}
       <div class="fg"><label>日期 *</label><input type="date" id="bm-date"></div>
       <div class="fg"><label>品类名称 *</label><select id="bm-prod"></select></div>
     </div>
-    <div class="fg"><label>摘要 / 客户名称</label><input type="text" id="bm-sum" placeholder="如：沙市超市补货、江陵批发商取货..."></div>
+    <div class="fr">
+      <div class="fg"><label>客户/摘要 <span style="color:var(--muted);font-size:10px">谁借货</span></label><input type="text" id="bm-sum" placeholder="如：沙市超市补货、江陵批发商..."></div>
+      <div class="fg"><label>客户经理 <span style="color:var(--muted);font-size:10px">谁经手</span></label><input type="text" id="bm-op" list="mgr-dl" placeholder="仓管"></div>
+    </div>
+    <div class="fg"><label>借货缘由 <span style="color:var(--muted);font-size:10px">为什么借</span></label>
+      <select id="bm-reason">
+        <option value="">请选择缘由</option>
+        <option value="零售补货">零售补货</option>
+        <option value="批发出货">批发出货</option>
+        <option value="促销活动">促销活动</option>
+        <option value="节日备货">节日备货</option>
+        <option value="客户退换">客户退换</option>
+        <option value="内部调拨">内部调拨</option>
+        <option value="期初建账">期初建账</option>
+        <option value="仓库盘点">仓库盘点</option>
+        <option value="其他">其他</option>
+      </select>
+    </div>
     <div class="fr3">
       <div class="fg"><label>入库数量(件)</label><input type="number" id="bm-in" value="0" min="0"></div>
       <div class="fg"><label>出库数量(件)</label><input type="number" id="bm-out" value="0" min="0"></div>
       <div class="fg"><label>期末结存 <span style="color:var(--muted);font-size:10px">留空自动算</span></label><input type="number" id="bm-bal" placeholder="自动"></div>
     </div>
     <div class="fr">
-      <div class="fg"><label>客户经理</label><input type="text" id="bm-op" list="mgr-dl" placeholder="仓管"></div>
       <div class="fg"><label>记录类型</label>
         <select id="bm-type"><option value="out">出库</option><option value="in">入库</option><option value="balance">期初/结存</option></select>
       </div>
+      <div class="fg"><label>备注</label><input type="text" id="bm-rem"></div>
     </div>
-    <div class="fg"><label>备注</label><input type="text" id="bm-rem"></div>
     <datalist id="mgr-dl"></datalist>
     <div class="ma"><button class="btn" onclick="closeMo('bm')">取消</button><button class="btn btn-p" onclick="saveBR()">保存</button></div>
   </div>
@@ -397,10 +505,26 @@ tr:hover{background:rgba(0,229,255,.03)}
   </div>
 </div>
 
+<!-- 新增寄存品种弹窗 -->
 <div class="mo" id="csm">
   <div class="md">
     <h3>🏪 新增寄存品种</h3>
-    <div class="fg"><label>品种名称 *</label><input type="text" id="csm-name" placeholder="如：400g绿色精制盐寄存"></div>
+    <div class="fg"><label>品种名称 *</label>
+      <select id="csm-preset" onchange="applyCSPreset()">
+        <option value="">-- 选择预设品种 --</option>
+        <option value="400g碘盐寄存汇总">400g碘盐寄存汇总</option>
+        <option value="500g纸塑盐寄存汇总">500g纸塑盐寄存汇总</option>
+        <option value="400g未加碘盐寄存汇总">400g未加碘盐寄存汇总</option>
+        <option value="320g低钠盐寄存汇总">320g低钠盐寄存汇总</option>
+        <option value="1.75L料酒寄存汇总">1.75L料酒寄存汇总</option>
+        <option value="淘源科技寄存汇总">淘源科技寄存汇总</option>
+        <option value="周厚勇400g碘盐寄存汇总">周厚勇400g碘盐寄存汇总</option>
+        <option value="周厚勇1.75L料酒寄存汇总">周厚勇1.75L料酒寄存汇总</option>
+        <option value="世超商贸寄存汇总">世超商贸寄存汇总</option>
+        <option value="500g九凤来碘盐寄存汇总">500g九凤来碘盐寄存汇总</option>
+      </select>
+    </div>
+    <div class="fg"><label>或自定义品种名称</label><input type="text" id="csm-name" placeholder="如：400g碘盐寄存汇总"></div>
     <div class="fr">
       <div class="fg"><label>计量单位</label><input type="text" id="csm-unit" value="件"></div>
       <div class="fg"><label>期初数量</label><input type="number" id="csm-init" value="0" min="0"></div>
@@ -410,6 +534,7 @@ tr:hover{background:rgba(0,229,255,.03)}
   </div>
 </div>
 
+<!-- 录入寄存变动弹窗 - 增加客户经理字段 -->
 <div class="mo" id="crm">
   <div class="md">
     <h3 id="crm-title">📋 录入寄存变动记录</h3>
@@ -417,8 +542,11 @@ tr:hover{background:rgba(0,229,255,.03)}
       <div class="fg"><label>日期 *</label><input type="date" id="crm-date"></div>
       <div class="fg"><label>品种名称 *</label><select id="crm-prod"></select></div>
     </div>
-    <div class="fg"><label>凭证号</label><input type="text" id="crm-vch" placeholder="可选"></div>
-    <div class="fg"><label>摘要 / 客户名称 *</label><input type="text" id="crm-sum" placeholder="如：荆沙超市寄存、张老板取出50件..."></div>
+    <div class="fr">
+      <div class="fg"><label>客户经理 <span style="color:var(--muted);font-size:10px">谁经手</span></label><input type="text" id="crm-mgr" list="mgr-dl2" placeholder="客户经理姓名"></div>
+      <div class="fg"><label>凭证号</label><input type="text" id="crm-vch" placeholder="可选"></div>
+    </div>
+    <div class="fg"><label>客户名称/摘要 *</label><input type="text" id="crm-sum" placeholder="如：荆沙超市寄存、张老板取出50件..."></div>
     <div class="fr3">
       <div class="fg"><label>期初结存</label><input type="number" id="crm-open" placeholder="自动"></div>
       <div class="fg"><label>寄入数量</label><input type="number" id="crm-inc" value="0" min="0"></div>
@@ -426,10 +554,12 @@ tr:hover{background:rgba(0,229,255,.03)}
     </div>
     <div class="fg"><label>期末结存 <span style="color:var(--muted);font-size:10px">留空自动算</span></label><input type="number" id="crm-close" placeholder="自动"></div>
     <div class="fg"><label>备注</label><input type="text" id="crm-rem"></div>
+    <datalist id="mgr-dl2"></datalist>
     <div class="ma"><button class="btn" onclick="closeMo('crm')">取消</button><button class="btn btn-au" onclick="saveCR()">保存</button></div>
   </div>
 </div>
 
+<!-- 盘点汇总报告弹窗 -->
 <div class="mo" id="rpt-mo">
   <div class="md" style="min-width:700px;max-width:900px">
     <h3>📄 寄存盘点汇总表</h3>
@@ -455,6 +585,25 @@ let isSyncing = false;
 let _editBId = '', _editPId = -1, _editCSId = '';
 let lastSyncTime = 0;
 let _saveTimer = null;
+
+// 10个固定寄存品种
+const FIXED_CS_PRODS = [
+  { name: '400g碘盐寄存汇总', unit: '件' },
+  { name: '500g纸塑盐寄存汇总', unit: '件' },
+  { name: '400g未加碘盐寄存汇总', unit: '件' },
+  { name: '320g低钠盐寄存汇总', unit: '件' },
+  { name: '1.75L料酒寄存汇总', unit: '件' },
+  { name: '淘源科技寄存汇总', unit: '件' },
+  { name: '周厚勇400g碘盐寄存汇总', unit: '件' },
+  { name: '周厚勇1.75L料酒寄存汇总', unit: '件' },
+  { name: '世超商贸寄存汇总', unit: '件' },
+  { name: '500g九凤来碘盐寄存汇总', unit: '件' }
+];
+
+// 品种短名（去掉"寄存汇总"后缀用于显示）
+function csShortName(name) {
+  return name.replace('寄存汇总', '').replace('寄存', '').trim();
+}
 
 function uid() { return 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
 function fn(n) { if (n == null || n === '') return '-'; return Number(n).toLocaleString(); }
@@ -492,7 +641,6 @@ async function kvdbPut(data) {
   return data;
 }
 
-// Debounced cloud save
 function scheduleSave() {
   if (_saveTimer) clearTimeout(_saveTimer);
   _saveTimer = setTimeout(async () => {
@@ -510,29 +658,21 @@ function scheduleSave() {
   }, 400);
 }
 
-// --- API wrappers (compatible with existing CRUD code) ---
-async function apiGet(url) {
-  return await kvdbGet();
-}
-
 async function apiPost(url, body) {
   if (url === '/api/restore') {
     D = Object.assign({}, body, { updatedAt: new Date().toISOString() });
   } else if (url === '/api/reset') {
     D = getDefaultData();
   }
-  // For all other operations, D is already updated by calling code
   scheduleSave();
   return { success: true };
 }
 
 async function apiDelete(url) {
-  // D is already updated by calling code (splice)
   scheduleSave();
   return { success: true };
 }
 
-// Get default data (for reset)
 function getDefaultData() {
   return {
     prods: [
@@ -553,6 +693,19 @@ function getDefaultData() {
   };
 }
 
+// 初始化/确保10个固定寄存品种存在
+function ensureFixedCSProds() {
+  if (!D.csprods) D.csprods = [];
+  let changed = false;
+  FIXED_CS_PRODS.forEach(fp => {
+    if (!D.csprods.find(p => p.name === fp.name)) {
+      D.csprods.push({ id: Date.now() + Math.random(), name: fp.name, unit: fp.unit, initQty: 0, remark: '' });
+      changed = true;
+    }
+  });
+  return changed;
+}
+
 // =========================================================
 // DATA LOADING & CLOUD SYNC
 // =========================================================
@@ -562,6 +715,10 @@ async function loadData() {
     if (!D || !D.prods) {
       D = getDefaultData();
       await kvdbPut(D);
+    }
+    // 确保10个固定寄存品种存在
+    if (ensureFixedCSProds()) {
+      scheduleSave();
     }
     lastSyncTime = new Date(D.updatedAt || 0).getTime();
     updateSyncStatus(true);
@@ -587,7 +744,6 @@ function updateSyncStatus(online) {
   }
 }
 
-// Polling sync: check cloud for updates every 5 seconds
 async function pollSync() {
   if (isSyncing) return;
   try {
@@ -596,6 +752,7 @@ async function pollSync() {
     if (cloudTime > lastSyncTime) {
       D = cloud;
       lastSyncTime = cloudTime;
+      ensureFixedCSProds();
       refreshCurrentTab();
     }
     updateSyncStatus(true);
@@ -604,18 +761,12 @@ async function pollSync() {
   }
 }
 
-async function handleSyncEvent(msg) {
-  // Kept for compatibility - now handled by pollSync
-  D = await kvdbGet();
-  refreshCurrentTab();
-}
-
 function refreshCurrentTab() {
   rHKPI();
   if (curTab === 0) rOverview();
-  else if (curTab === 1) rBT();
+  else if (curTab === 1) { rBT(); rDayInv(); rMgrDayRecords(); }
   else if (curTab === 2) { rProdCards(); rLT(); rLCharts(); }
-  else if (curTab === 3) { rCSKPI(); rCSCards(); rCSCharts(); rCT(); rCCT(); }
+  else if (curTab === 3) { rCSKPI(); rCSCards(); rCSCharts(); rCT(); rCSMgrDetail(); rCSPeriod(); }
   else if (curTab === 4) { populateHMMonths(); rHM(); rDD(); }
 }
 
@@ -638,6 +789,23 @@ function compInv() {
     if (r.balance != null && r.balance !== '') inv[r.product].end = +r.balance;
     else inv[r.product].end += (+r.inc || 0) - (+r.out || 0);
   });
+  return inv;
+}
+
+// 计算某日期截止时各产品的库存结存
+function compInvAtDate(targetDate) {
+  const inv = {};
+  D.prods.forEach(p => { inv[p.name] = { prev: p.prev || 0, inc: 0, dec: 0, end: p.prev || 0, warn: p.warn || 50, cat: p.cat }; });
+  [...D.borrows]
+    .filter(r => r.date <= targetDate)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .forEach(r => {
+      if (!inv[r.product]) inv[r.product] = { prev: 0, inc: 0, dec: 0, end: 0, warn: 50, cat: '其他' };
+      if (r.type === 'balance') { if (r.balance != null && r.balance !== '') inv[r.product].end = +r.balance; return; }
+      inv[r.product].inc += +r.inc || 0; inv[r.product].dec += +r.out || 0;
+      if (r.balance != null && r.balance !== '') inv[r.product].end = +r.balance;
+      else inv[r.product].end += (+r.inc || 0) - (+r.out || 0);
+    });
   return inv;
 }
 
@@ -701,9 +869,9 @@ function sTab(t) {
   document.querySelectorAll('.tbtn').forEach((b, i) => { b.classList.toggle('active', i === t) });
   curTab = t;
   if (t === 0) rOverview();
-  else if (t === 1) rBT();
+  else if (t === 1) { rBT(); const b1d = document.getElementById('b1-date'); if (b1d && b1d.value) rDayInv(); }
   else if (t === 2) { rProdCards(); rLT(); rLCharts(); }
-  else if (t === 3) { rCSKPI(); rCSCards(); rCSCharts(); rCT(); rCCT(); }
+  else if (t === 3) { rCSKPI(); rCSCards(); rCSCharts(); rCT(); popCSMgrFilters(); rCSMgrDetail(); populateCSPeriodMonths(); rCSPeriod(); }
   else if (t === 4) { populateHMMonths(); rHM(); }
 }
 
@@ -796,8 +964,130 @@ function rInvTable() {
 }
 
 // =========================================================
-// TAB1: BORROW TABLE
+// TAB1: BORROW TABLE - 优化版
 // =========================================================
+function setB1Today() {
+  const t = new Date().toISOString().slice(0, 10);
+  document.getElementById('b1-date').value = t;
+  rDayInv();
+}
+function adjB1Day(d) {
+  const dp = document.getElementById('b1-date');
+  if (!dp.value) { setB1Today(); return; }
+  const dt = new Date(dp.value); dt.setDate(dt.getDate() + d);
+  dp.value = dt.toISOString().slice(0, 10); rDayInv();
+}
+
+// 按天盘点各产品库存
+function rDayInv() {
+  const date = document.getElementById('b1-date')?.value;
+  if (!date) return;
+  const inv = compInvAtDate(date);
+  const dayRecs = D.borrows.filter(r => r.date === date);
+  const el = document.getElementById('day-inv-content');
+
+  // 更新客户经理当天记录标签
+  const lbl = document.getElementById('b1-mgr-date-label');
+  if (lbl) lbl.textContent = `📅 ${date} 借货记录`;
+  rMgrDayRecords(date);
+
+  if (!Object.keys(inv).length) {
+    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted)">暂无库存数据</div>';
+    return;
+  }
+  // 当天入出汇总
+  const todayIn = dayRecs.reduce((s, r) => s + (+r.inc || 0), 0);
+  const todayOut = dayRecs.reduce((s, r) => s + (+r.out || 0), 0);
+  const prodCnt = new Set(dayRecs.map(r => r.product)).size;
+  const mgrCnt = new Set(dayRecs.map(r => r.operator).filter(Boolean)).size;
+
+  let html = `<div class="day-inv-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:12px">
+    <div class="day-inv-card"><div class="div ok" style="font-size:18px;font-weight:700;color:var(--green)">${fn(todayIn)}</div><div class="dlabel">当日入库(件)</div></div>
+    <div class="day-inv-card"><div class="div w" style="font-size:18px;font-weight:700;color:var(--red)">${fn(todayOut)}</div><div class="dlabel">当日出库(件)</div></div>
+    <div class="day-inv-card"><div class="div" style="font-size:18px;font-weight:700;color:var(--cyan)">${prodCnt}</div><div class="dlabel">涉及品种数</div></div>
+    <div class="day-inv-card"><div class="div" style="font-size:18px;font-weight:700;color:var(--gold)">${mgrCnt}</div><div class="dlabel">操作人员数</div></div>
+  </div>`;
+
+  // 各产品当天结存表
+  html += `<div class="tw"><table>
+    <thead><tr>
+      <th>#</th><th>品类名称</th><th>类别</th>
+      <th style="color:var(--green)">当日入库</th>
+      <th style="color:var(--red)">当日出库</th>
+      <th style="color:var(--cyan)">当日结存</th>
+      <th>库存状态</th>
+    </tr></thead>
+    <tbody>`;
+  Object.entries(inv).forEach(([name, v], i) => {
+    // 当日该产品的入出
+    const dayIn = dayRecs.filter(r => r.product === name).reduce((s, r) => s + (+r.inc || 0), 0);
+    const dayOut = dayRecs.filter(r => r.product === name).reduce((s, r) => s + (+r.out || 0), 0);
+    const st = stockStatus(v.end, v.warn);
+    html += `<tr class="${v.end <= 0 ? 'rw' : v.end < v.warn ? 'rg' : ''}">
+      <td>${i+1}</td>
+      <td><b>${name}</b></td>
+      <td><span class="badge bc">${v.cat}</span></td>
+      <td>${dayIn > 0 ? `<span style="color:var(--green)">+${fn(dayIn)}</span>` : '<span style="color:var(--muted)">-</span>'}</td>
+      <td>${dayOut > 0 ? `<span style="color:var(--red)">-${fn(dayOut)}</span>` : '<span style="color:var(--muted)">-</span>'}</td>
+      <td><b style="color:var(--cyan)">${fn(v.end)}</b></td>
+      <td><span class="badge ${st.bc}">${st.label}</span></td>
+    </tr>`;
+  });
+  html += '</tbody></table></div>';
+  el.innerHTML = html;
+}
+
+// 各客户经理当天借货记录
+function rMgrDayRecords(date) {
+  if (!date) date = document.getElementById('b1-date')?.value;
+  const el = document.getElementById('mgr-day-records');
+  if (!date || !el) return;
+  const recs = D.borrows.filter(r => r.date === date);
+  if (!recs.length) {
+    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--muted)">📭 ${date} 暂无借货记录</div>`;
+    return;
+  }
+  // 按客户经理分组
+  const byMgr = {};
+  recs.forEach(r => {
+    const mgr = r.operator || '未知';
+    if (!byMgr[mgr]) byMgr[mgr] = [];
+    byMgr[mgr].push(r);
+  });
+  const colors = ['#2979ff', '#00e5ff', '#00e676', '#ffc107', '#ff9800', '#7c4dff', '#ff5252'];
+  let html = '';
+  Object.entries(byMgr).forEach(([mgr, rs], idx) => {
+    const totalIn = rs.reduce((s, r) => s + (+r.inc || 0), 0);
+    const totalOut = rs.reduce((s, r) => s + (+r.out || 0), 0);
+    const clr = colors[idx % colors.length];
+    html += `<div class="mgr-day-card" style="border-color:${clr}40">
+      <div class="mgr-day-head">
+        <span class="mgr-day-name" style="color:${clr}">👤 ${mgr}</span>
+        <div style="display:flex;gap:8px;font-size:11px">
+          <span style="color:var(--green)">入库 ${fn(totalIn)} 件</span>
+          <span style="color:var(--red)">出库 ${fn(totalOut)} 件</span>
+          <span style="color:var(--muted)">${rs.length} 条记录</span>
+        </div>
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th>品类名称</th><th>客户/摘要</th><th>借货缘由</th><th>入库(件)</th><th>出库(件)</th><th>期末结存</th><th>备注</th></tr></thead>
+        <tbody>
+          ${rs.map(r => `<tr>
+            <td><b>${r.product}</b></td>
+            <td>${r.summary || ''}</td>
+            <td>${r.reason ? `<span class="reason-tag">${r.reason}</span>` : '<span style="color:var(--muted)">-</span>'}</td>
+            <td>${+r.inc > 0 ? `<span style="color:var(--green)">+${fn(r.inc)}</span>` : '-'}</td>
+            <td>${+r.out > 0 ? `<span style="color:var(--red)">-${fn(r.out)}</span>` : '-'}</td>
+            <td>${r.balance != null && r.balance !== '' ? `<b>${fn(r.balance)}</b>` : '-'}</td>
+            <td style="color:var(--muted)">${r.remark || ''}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
 function popBorrowFilters() {
   const ms = [...new Set(D.borrows.map(r => r.operator).filter(Boolean))].sort();
   const mons = [...new Set(D.borrows.map(r => r.date.slice(0, 7)))].sort().reverse();
@@ -807,6 +1097,7 @@ function popBorrowFilters() {
   ['br-prod'].forEach(id => { const s = document.getElementById(id); if (!s) return; const c = s.value; s.innerHTML = '<option value="">全部品类</option>' + ps.map(p => `<option ${p === c ? 'selected' : ''}>${p}</option>`).join(''); });
   const bmp = document.getElementById('bm-prod'); if (bmp) bmp.innerHTML = D.prods.map(p => `<option>${p.name}</option>`).join('');
   const dl = document.getElementById('mgr-dl'); if (dl) dl.innerHTML = D.mgrs.map(m => `<option value="${m}">`).join('');
+  const dl2 = document.getElementById('mgr-dl2'); if (dl2) dl2.innerHTML = D.mgrs.map(m => `<option value="${m}">`).join('');
 }
 
 function getFilBorrows() {
@@ -814,6 +1105,8 @@ function getFilBorrows() {
   const mnf = document.getElementById('br-mon')?.value || '';
   const pf = document.getElementById('br-prod')?.value || '';
   const tf = document.getElementById('br-type')?.value || '';
+  const df = document.getElementById('br-date-f')?.value || '';
+  const dt = document.getElementById('br-date-t')?.value || '';
   const s = (document.getElementById('br-s')?.value || '').toLowerCase();
   return [...D.borrows].filter(r => {
     if (mf && r.operator !== mf) return false;
@@ -823,7 +1116,9 @@ function getFilBorrows() {
     if (tf === 'in' && !(+r.inc > 0)) return false;
     if (tf === 'out' && !(+r.out > 0)) return false;
     if (tf === 'balance' && r.type !== 'balance') return false;
-    if (s && !r.summary?.toLowerCase().includes(s) && !r.product?.toLowerCase().includes(s)) return false;
+    if (df && r.date < df) return false;
+    if (dt && r.date > dt) return false;
+    if (s && !r.summary?.toLowerCase().includes(s) && !r.product?.toLowerCase().includes(s) && !r.reason?.toLowerCase().includes(s)) return false;
     return true;
   }).sort((a, b) => b.date.localeCompare(a.date));
 }
@@ -836,7 +1131,10 @@ function rBT() {
   const tb = document.querySelector('#borrow-tbl tbody');
   tb.innerHTML = page.map(r => {
     return `<tr>
-      <td>${r.date}</td><td>${r.product}</td><td>${r.summary || ''}</td>
+      <td>${r.date}</td>
+      <td><b>${r.product}</b></td>
+      <td>${r.summary || ''}</td>
+      <td>${r.reason ? `<span class="reason-tag">${r.reason}</span>` : '<span style="color:var(--muted)">-</span>'}</td>
       <td>${+r.inc > 0 ? `<span style="color:var(--green)">+${fn(r.inc)}</span>` : '-'}</td>
       <td>${+r.out > 0 ? `<span style="color:var(--red)">-${fn(r.out)}</span>` : '-'}</td>
       <td>${r.balance != null && r.balance !== '' ? `<b>${fn(r.balance)}</b>` : '-'}</td>
@@ -844,7 +1142,7 @@ function rBT() {
       <td style="color:var(--muted);font-size:11px">${r.remark || ''}</td>
       <td><button class="btn btn-xs" onclick="oBM('${r._id}')">编辑</button> <button class="btn btn-xs btn-d" onclick="delB('${r._id}')">删</button></td>
     </tr>`;
-  }).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--muted)">暂无记录</td></tr>';
+  }).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--muted)">暂无记录</td></tr>';
   rPg('bpg', brP, tp, p => { brP = p; rBT(); });
 }
 
@@ -899,9 +1197,10 @@ function rLT() {
     const pObj = D.prods.find(p => p.name === r.product);
     const iv = inv[r.product]; const st = iv ? stockStatus(iv.end, iv.warn) : { label: '', bc: '' };
     return `<tr>
-      <td>${r.date}</td><td>${r.product}</td>
+      <td>${r.date}</td><td><b>${r.product}</b></td>
       <td><span class="badge bc">${pObj?.cat || ''}</span></td>
       <td>${r.summary || ''}</td>
+      <td>${r.reason ? `<span class="reason-tag">${r.reason}</span>` : '-'}</td>
       <td>${+r.inc > 0 ? `<span style="color:var(--green)">+${fn(r.inc)}</span>` : '-'}</td>
       <td>${+r.out > 0 ? `<span style="color:var(--red)">-${fn(r.out)}</span>` : '-'}</td>
       <td>${r.balance != null && r.balance !== '' ? `<b>${fn(r.balance)}</b>` : '-'}</td>
@@ -909,7 +1208,7 @@ function rLT() {
       <td>${iv ? `<span class="badge ${st.bc}">${st.label}</span>` : ''}</td>
       <td style="color:var(--muted);font-size:11px">${r.remark || ''}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--muted)">暂无记录</td></tr>';
+  }).join('') || '<tr><td colspan="11" style="text-align:center;color:var(--muted)">暂无记录</td></tr>';
   rPg('lpg', lP, tp, p => { lP = p; rLT(); });
 }
 
@@ -926,7 +1225,7 @@ function rLCharts() {
 function recalcBalance() { toast('已重新计算各品种结存', 'success'); rProdCards(); rLT(); }
 
 // =========================================================
-// TAB3: CONSIGN
+// TAB3: CONSIGN - 优化版
 // =========================================================
 function rCSKPI() {
   const inv = compCSInv(); const vals = Object.values(inv);
@@ -947,37 +1246,287 @@ function rCSCards() {
   const inv = compCSInv();
   const colors = ['#ffc107', '#ff9800', '#00e5ff', '#2979ff', '#00e676', '#7c4dff', '#ff5252', '#26c6da', '#ef5350', '#66bb6a'];
   const el = document.getElementById('cs-cards');
-  el.innerHTML = D.csprods.map((p, i) => {
+  // 按固定品种顺序展示
+  const orderedProds = [
+    ...FIXED_CS_PRODS.map(fp => D.csprods.find(p => p.name === fp.name)).filter(Boolean),
+    ...D.csprods.filter(p => !FIXED_CS_PRODS.find(fp => fp.name === p.name))
+  ];
+  el.innerHTML = orderedProds.map((p, i) => {
     const v = inv[p.name] || { end: 0, inc: 0, dec: 0 };
     const net = v.inc - v.dec;
     const trend = net > 0 ? `<span class="up">↑ 净增${fn(net)}</span>` : net < 0 ? `<span class="dn">↓ 净减${fn(-net)}</span>` : `<span class="fl">持平</span>`;
+    const clr = colors[i % colors.length];
     return `<div class="csc ${selCSProd === p.name ? 'sel' : ''}" onclick="fCSProd('${p.name}')">
-      <div style="font-size:12px;font-weight:600;color:${colors[i % colors.length]};margin-bottom:3px">${p.name.replace('寄存', '')}</div>
-      <div style="font-size:22px;font-weight:700;color:${colors[i % colors.length]};margin:3px 0">${fn(v.end)}</div>
-      <div style="font-size:10px;color:var(--sub)">${p.unit || '件'} · ${v.end <= 0 ? '<span style="color:var(--red)">已清零</span>' : '在存'}</div>
-      <div style="font-size:10px;margin-top:4px">${trend}</div>
+      <div style="font-size:11px;font-weight:600;color:${clr};margin-bottom:3px;line-height:1.3">${csShortName(p.name)}</div>
+      <div style="font-size:22px;font-weight:700;color:${clr};margin:3px 0">${fn(v.end)}</div>
+      <div style="font-size:10px;color:var(--sub)">${p.unit || '件'} · ${v.end <= 0 ? '<span style="color:var(--red)">已清零</span>' : '<span style="color:var(--green)">在存</span>'}</div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:3px">
+        <span style="color:var(--gold)">入 ${fn(v.inc)}</span>
+        <span style="color:var(--orange)">出 ${fn(v.dec)}</span>
+      </div>
+      <div style="font-size:10px;margin-top:3px">${trend}</div>
     </div>`;
   }).join('');
 }
 
 function fCSProd(n) { selCSProd = selCSProd === n ? '' : n; rCSCards(); csP = 1; rCT(); }
 
+// 填充客户经理筛选
+function popCSMgrFilters() {
+  const mgrs = [...new Set(D.csrecs.map(r => r.manager).filter(Boolean))].sort();
+  const prods = D.csprods.map(p => p.name);
+  const mgrSel = document.getElementById('cs-mgr-pf');
+  if (mgrSel) {
+    const cur = mgrSel.value;
+    mgrSel.innerHTML = '<option value="">全部客户经理</option>' + mgrs.map(m => `<option ${m === cur ? 'selected' : ''}>${m}</option>`).join('');
+  }
+  const prodSel = document.getElementById('cs-mgr-prod-pf');
+  if (prodSel) {
+    const cur = prodSel.value;
+    prodSel.innerHTML = '<option value="">全部品种</option>' + prods.map(p => `<option ${p === cur ? 'selected' : ''}>${p}</option>`).join('');
+  }
+  const mgrF = document.getElementById('cs-mgr-f');
+  if (mgrF) {
+    const cur = mgrF.value;
+    mgrF.innerHTML = '<option value="">全部客户经理</option>' + mgrs.map(m => `<option ${m === cur ? 'selected' : ''}>${m}</option>`).join('');
+  }
+  // 更新寄存变动弹窗客户经理datalist
+  const dl2 = document.getElementById('mgr-dl2');
+  if (dl2) dl2.innerHTML = [...D.mgrs, ...mgrs].filter((v, i, a) => a.indexOf(v) === i).map(m => `<option value="${m}">`).join('');
+}
+
+// 各客户经理寄存明细分析
+function rCSMgrDetail() {
+  popCSMgrFilters();
+  const mgrF = document.getElementById('cs-mgr-pf')?.value || '';
+  const prodF = document.getElementById('cs-mgr-prod-pf')?.value || '';
+  const df = document.getElementById('cs-mgr-from')?.value || '';
+  const dt = document.getElementById('cs-mgr-to')?.value || '';
+
+  let recs = D.csrecs.filter(r => {
+    if (mgrF && r.manager !== mgrF) return false;
+    if (prodF && r.product !== prodF) return false;
+    if (df && r.date < df) return false;
+    if (dt && r.date > dt) return false;
+    return true;
+  });
+
+  // 按客户经理 + 品种汇总
+  const mgrProdMap = {};
+  recs.forEach(r => {
+    const mgr = r.manager || '(未填写)';
+    const prod = r.product;
+    const key = mgr + '||' + prod;
+    if (!mgrProdMap[key]) mgrProdMap[key] = { mgr, prod, inc: 0, dec: 0, cnt: 0, lastDate: r.date };
+    mgrProdMap[key].inc += +r.inc || 0;
+    mgrProdMap[key].dec += +r.dec || 0;
+    if (r.date > mgrProdMap[key].lastDate) mgrProdMap[key].lastDate = r.date;
+    mgrProdMap[key].cnt++;
+  });
+
+  const el = document.getElementById('cs-mgr-detail-content');
+  if (!Object.keys(mgrProdMap).length) {
+    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted)">暂无寄存记录</div>';
+    return;
+  }
+
+  const byMgr = {};
+  Object.values(mgrProdMap).forEach(row => {
+    if (!byMgr[row.mgr]) byMgr[row.mgr] = [];
+    byMgr[row.mgr].push(row);
+  });
+
+  const colors = ['#2979ff', '#00e5ff', '#00e676', '#ffc107', '#ff9800', '#7c4dff', '#ff5252'];
+  let html = '';
+  Object.entries(byMgr).forEach(([mgr, rows], idx) => {
+    const totalInc = rows.reduce((s, r) => s + r.inc, 0);
+    const totalDec = rows.reduce((s, r) => s + r.dec, 0);
+    const clr = colors[idx % colors.length];
+    html += `<div class="mgr-day-card" style="border-color:${clr}40;margin-bottom:10px">
+      <div class="mgr-day-head">
+        <span class="mgr-day-name" style="color:${clr}">👤 ${mgr}</span>
+        <div style="display:flex;gap:8px;font-size:11px">
+          <span style="color:var(--gold)">累计寄入 ${fn(totalInc)}</span>
+          <span style="color:var(--orange)">累计取出 ${fn(totalDec)}</span>
+          <span style="color:var(--cyan)">净寄存 ${fn(totalInc - totalDec)}</span>
+        </div>
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th>品种名称</th><th>累计寄入</th><th>累计取出</th><th>当前寄存量</th><th>最近操作日期</th><th>状态</th></tr></thead>
+        <tbody>
+          ${rows.map(r => {
+            const cur = r.inc - r.dec;
+            return `<tr>
+              <td><b>${csShortName(r.prod)}</b></td>
+              <td style="color:var(--gold)">${fn(r.inc)}</td>
+              <td style="color:var(--orange)">${fn(r.dec)}</td>
+              <td><b style="color:${cur > 0 ? 'var(--cyan)' : 'var(--muted)'}">${fn(cur)}</b></td>
+              <td style="color:var(--muted)">${r.lastDate}</td>
+              <td><span class="badge ${cur > 0 ? 'bau' : 'bp'}">${cur > 0 ? '寄存中' : '已清零'}</span></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table></div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function resetCSMgrFilter() {
+  document.getElementById('cs-mgr-pf').value = '';
+  document.getElementById('cs-mgr-prod-pf').value = '';
+  const f = document.getElementById('cs-mgr-from'); if (f) f.value = '';
+  const t = document.getElementById('cs-mgr-to'); if (t) t.value = '';
+  rCSMgrDetail();
+}
+
+function populateCSPeriodMonths() {
+  const sel = document.getElementById('cs-period-mon');
+  if (!sel) return;
+  const mons = [...new Set(D.csrecs.map(r => r.date.slice(0, 7)))].sort().reverse();
+  const cur = sel.value || (mons[0] || '');
+  sel.innerHTML = '<option value="">选择月份</option>' + mons.map(m => `<option ${m === cur ? 'selected' : ''}>${m}</option>`).join('');
+}
+
+function setCSPeriodToday() {
+  const t = new Date().toISOString().slice(0, 10);
+  document.getElementById('cs-period-date').value = t;
+  document.getElementById('cs-period-type').value = 'day';
+  rCSPeriod();
+}
+
+function rCSPeriod() {
+  populateCSPeriodMonths();
+  const type = document.getElementById('cs-period-type')?.value || 'day';
+  const el = document.getElementById('cs-period-content');
+  if (type === 'day') {
+    const date = document.getElementById('cs-period-date')?.value;
+    if (!date) { el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted)">请选择日期进行日盘点</div>'; return; }
+    const dayRecs = D.csrecs.filter(r => r.date === date);
+    if (!dayRecs.length) {
+      el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--muted)">📭 ${date} 暂无寄存记录</div>`;
+      return;
+    }
+    const dayIn = dayRecs.reduce((s, r) => s + (+r.inc || 0), 0);
+    const dayOut = dayRecs.reduce((s, r) => s + (+r.dec || 0), 0);
+    let html = `<div style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:10px">📅 ${date} 寄存日盘点</div>
+    <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+      <div class="day-inv-card" style="flex:1;min-width:100px"><div class="div" style="font-size:16px;font-weight:700;color:var(--gold)">${fn(dayIn)}</div><div class="dlabel">当日总寄入</div></div>
+      <div class="day-inv-card" style="flex:1;min-width:100px"><div class="div" style="font-size:16px;font-weight:700;color:var(--orange)">${fn(dayOut)}</div><div class="dlabel">当日总取出</div></div>
+      <div class="day-inv-card" style="flex:1;min-width:100px"><div class="div" style="font-size:16px;font-weight:700;color:var(--cyan)">${[...new Set(dayRecs.map(r=>r.product))].length}</div><div class="dlabel">涉及品种</div></div>
+      <div class="day-inv-card" style="flex:1;min-width:100px"><div class="div" style="font-size:16px;font-weight:700;color:var(--blue)">${[...new Set(dayRecs.map(r=>r.manager).filter(Boolean))].length}</div><div class="dlabel">操作人员</div></div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>品种名称</th><th>客户经理</th><th>客户/摘要</th><th>期初</th><th style="color:var(--gold)">寄入</th><th style="color:var(--orange)">取出</th><th style="color:var(--cyan)">期末</th><th>备注</th></tr></thead>
+      <tbody>
+        ${dayRecs.map(r => `<tr>
+          <td><b>${csShortName(r.product)}</b></td>
+          <td>${r.manager ? `<span class="badge bb">${r.manager}</span>` : '-'}</td>
+          <td>${r.summary || ''}</td>
+          <td>${r.open != null && r.open !== '' ? fn(r.open) : '-'}</td>
+          <td>${+r.inc > 0 ? `<span style="color:var(--gold)">+${fn(r.inc)}</span>` : '-'}</td>
+          <td>${+r.dec > 0 ? `<span style="color:var(--orange)">-${fn(r.dec)}</span>` : '-'}</td>
+          <td>${r.close != null && r.close !== '' ? `<b style="color:var(--cyan)">${fn(r.close)}</b>` : '-'}</td>
+          <td style="color:var(--muted)">${r.remark || ''}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+    el.innerHTML = html;
+  } else {
+    const mon = document.getElementById('cs-period-mon')?.value;
+    if (!mon) { el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted)">请选择月份进行月度盘点</div>'; return; }
+    const monRecs = D.csrecs.filter(r => r.date.startsWith(mon));
+    if (!monRecs.length) {
+      el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--muted)">📭 ${mon} 暂无寄存记录</div>`;
+      return;
+    }
+    const byProd = {};
+    monRecs.forEach(r => {
+      if (!byProd[r.product]) byProd[r.product] = { inc: 0, dec: 0, mgrMap: {} };
+      byProd[r.product].inc += +r.inc || 0;
+      byProd[r.product].dec += +r.dec || 0;
+      const mgr = r.manager || '未知';
+      if (!byProd[r.product].mgrMap[mgr]) byProd[r.product].mgrMap[mgr] = { inc: 0, dec: 0 };
+      byProd[r.product].mgrMap[mgr].inc += +r.inc || 0;
+      byProd[r.product].mgrMap[mgr].dec += +r.dec || 0;
+    });
+    const totalIn = monRecs.reduce((s, r) => s + (+r.inc || 0), 0);
+    const totalOut = monRecs.reduce((s, r) => s + (+r.dec || 0), 0);
+    const byDay = {};
+    monRecs.forEach(r => { if (!byDay[r.date]) byDay[r.date] = 0; byDay[r.date]++; });
+
+    let html = `<div style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:10px">📅 ${mon} 寄存月度盘点汇总</div>
+    <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+      <div class="day-inv-card" style="flex:1"><div class="div" style="font-size:16px;font-weight:700;color:var(--gold)">${fn(totalIn)}</div><div class="dlabel">月度总寄入</div></div>
+      <div class="day-inv-card" style="flex:1"><div class="div" style="font-size:16px;font-weight:700;color:var(--orange)">${fn(totalOut)}</div><div class="dlabel">月度总取出</div></div>
+      <div class="day-inv-card" style="flex:1"><div class="div" style="font-size:16px;font-weight:700;color:var(--cyan)">${Object.keys(byProd).length}</div><div class="dlabel">涉及品种</div></div>
+      <div class="day-inv-card" style="flex:1"><div class="div" style="font-size:16px;font-weight:700;color:var(--blue)">${Object.keys(byDay).length}</div><div class="dlabel">操作天数</div></div>
+    </div>
+    <div class="cs-group-head">📦 各品种月度汇总</div>
+    <div class="tw"><table>
+      <thead><tr><th>品种名称</th><th style="color:var(--gold)">月度寄入</th><th style="color:var(--orange)">月度取出</th><th style="color:var(--cyan)">净变动</th><th>客户经理明细</th></tr></thead>
+      <tbody>
+        ${Object.entries(byProd).map(([prod, v]) => {
+          const net = v.inc - v.dec;
+          const mgrStr = Object.entries(v.mgrMap).map(([m, mv]) => `${m}:入${mv.inc}/出${mv.dec}`).join(' | ');
+          return `<tr>
+            <td><b>${csShortName(prod)}</b></td>
+            <td style="color:var(--gold)">${fn(v.inc)}</td>
+            <td style="color:var(--orange)">${fn(v.dec)}</td>
+            <td style="color:${net > 0 ? 'var(--cyan)' : net < 0 ? 'var(--red)' : 'var(--muted)'}">${net > 0 ? '+' : ''}${fn(net)}</td>
+            <td style="font-size:10px;color:var(--sub)">${mgrStr || '-'}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table></div>
+    <div class="cs-group-head" style="margin-top:12px">📅 每日明细</div>
+    <div class="tw"><table>
+      <thead><tr><th>日期</th><th>品种</th><th>客户经理</th><th>客户/摘要</th><th>期初</th><th style="color:var(--gold)">寄入</th><th style="color:var(--orange)">取出</th><th style="color:var(--cyan)">期末</th></tr></thead>
+      <tbody>
+        ${monRecs.sort((a,b) => a.date.localeCompare(b.date)).map(r => `<tr>
+          <td>${r.date}</td>
+          <td><b>${csShortName(r.product)}</b></td>
+          <td>${r.manager ? `<span class="badge bb">${r.manager}</span>` : '-'}</td>
+          <td>${r.summary || ''}</td>
+          <td>${r.open != null && r.open !== '' ? fn(r.open) : '-'}</td>
+          <td>${+r.inc > 0 ? `<span style="color:var(--gold)">+${fn(r.inc)}</span>` : '-'}</td>
+          <td>${+r.dec > 0 ? `<span style="color:var(--orange)">-${fn(r.dec)}</span>` : '-'}</td>
+          <td>${r.close != null && r.close !== '' ? `<b style="color:var(--cyan)">${fn(r.close)}</b>` : '-'}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+    el.innerHTML = html;
+  }
+}
+
 function popCSFilters() {
   const sel = document.getElementById('crm-prod');
   if (sel) sel.innerHTML = D.csprods.map(p => `<option>${p.name}</option>`).join('');
   const fsel = document.getElementById('cs-pf');
   if (fsel) { const cur = fsel.value; fsel.innerHTML = '<option value="">全部品种</option>' + D.csprods.map(p => `<option ${p.name === cur ? 'selected' : ''}>${p.name}</option>`).join(''); }
+  const mgrF = document.getElementById('cs-mgr-f');
+  if (mgrF) {
+    const cur = mgrF.value;
+    const mgrs = [...new Set(D.csrecs.map(r => r.manager).filter(Boolean))].sort();
+    mgrF.innerHTML = '<option value="">全部客户经理</option>' + mgrs.map(m => `<option ${m === cur ? 'selected' : ''}>${m}</option>`).join('');
+  }
 }
 
 function getFilCSRecs() {
   const pf = document.getElementById('cs-pf')?.value || selCSProd || '';
+  const mgrF = document.getElementById('cs-mgr-f')?.value || '';
   const tf = document.getElementById('cs-tf')?.value || '';
+  const df = document.getElementById('cs-df')?.value || '';
+  const dt = document.getElementById('cs-dt')?.value || '';
   const s = (document.getElementById('cs-s')?.value || '').toLowerCase();
   return [...D.csrecs].filter(r => {
     if (pf && r.product !== pf) return false;
+    if (mgrF && r.manager !== mgrF) return false;
     if (tf === 'in' && !(+r.inc > 0)) return false;
     if (tf === 'out' && !(+r.dec > 0)) return false;
-    if (s && !r.summary?.toLowerCase().includes(s) && !r.product?.toLowerCase().includes(s)) return false;
+    if (df && r.date < df) return false;
+    if (dt && r.date > dt) return false;
+    if (s && !r.summary?.toLowerCase().includes(s) && !r.product?.toLowerCase().includes(s) && !r.manager?.toLowerCase().includes(s)) return false;
     return true;
   }).sort((a, b) => b.date.localeCompare(a.date));
 }
@@ -989,7 +1538,9 @@ function rCT() {
   const tb = document.querySelector('#cs-tbl tbody');
   tb.innerHTML = page.map(r => {
     return `<tr>
-      <td>${r.date}</td><td>${r.product.replace('寄存', '')}</td>
+      <td>${r.date}</td>
+      <td>${csShortName(r.product)}</td>
+      <td>${r.manager ? `<span class="badge bb">${r.manager}</span>` : '-'}</td>
       <td style="color:var(--muted);font-size:11px">${r.voucher || '-'}</td>
       <td>${r.summary || ''}</td>
       <td>${r.open != null && r.open !== '' ? fn(r.open) : '-'}</td>
@@ -999,52 +1550,24 @@ function rCT() {
       <td style="color:var(--muted);font-size:11px">${r.remark || ''}</td>
       <td><button class="btn btn-xs btn-au" onclick="oCRM('${r._id}')">编辑</button> <button class="btn btn-xs btn-d" onclick="delCS('${r._id}')">删</button></td>
     </tr>`;
-  }).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--muted)">暂无记录</td></tr>';
+  }).join('') || '<tr><td colspan="11" style="text-align:center;color:var(--muted)">暂无记录</td></tr>';
   rPg('cspg', csP, tp, p => { csP = p; rCT(); });
-}
-
-function rCCT() {
-  const s = (document.getElementById('cs-cust-s')?.value || '').toLowerCase();
-  const cm = {};
-  D.csrecs.forEach(r => {
-    if (!r.summary) return;
-    const k = `${r.summary}||${r.product}`;
-    if (!cm[k]) cm[k] = { sum: r.summary, prod: r.product, inc: 0, dec: 0, ld: r.date };
-    cm[k].inc += +r.inc || 0; cm[k].dec += +r.dec || 0;
-    if (r.date > cm[k].ld) cm[k].ld = r.date;
-  });
-  const list = Object.values(cm).filter(c => {
-    if (!s) return true;
-    return c.sum?.toLowerCase().includes(s) || c.prod?.toLowerCase().includes(s);
-  }).sort((a, b) => (b.inc - b.dec) - (a.inc - a.dec));
-  const tb = document.querySelector('#cust-cs-tbl tbody');
-  tb.innerHTML = list.map(c => {
-    const cur = c.inc - c.dec;
-    return `<tr>
-      <td>${c.sum || ''}</td><td>${c.prod.replace('寄存', '')}</td>
-      <td style="color:var(--gold)">${fn(c.inc)}</td>
-      <td style="color:var(--orange)">${fn(c.dec)}</td>
-      <td><b style="color:${cur > 0 ? 'var(--cyan)' : 'var(--muted)'}">${fn(cur)}</b></td>
-      <td>${c.ld}</td>
-      <td><span class="badge ${cur > 0 ? 'bau' : 'bp'}">${cur > 0 ? '寄存中' : '已清零'}</span></td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted)">暂无数据</td></tr>';
 }
 
 function rCSCharts() {
   const inv = compCSInv(); const entries = Object.entries(inv);
   const pie = gchart('c-cspie');
-  if (pie) pie.setOption({ backgroundColor: 'transparent', tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' }, series: [{ type: 'pie', radius: ['35%', '65%'], data: entries.filter(([, v]) => v.end > 0).map(([k, v]) => ({ name: k.replace('寄存', ''), value: v.end })), label: { color: '#9aa9c1', fontSize: 10 } }] });
+  if (pie) pie.setOption({ backgroundColor: 'transparent', tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' }, series: [{ type: 'pie', radius: ['35%', '65%'], data: entries.filter(([, v]) => v.end > 0).map(([k, v]) => ({ name: csShortName(k), value: v.end })), label: { color: '#9aa9c1', fontSize: 10 } }] });
   const sr = [...D.csrecs].sort((a, b) => a.date.localeCompare(b.date));
   const ams = [...new Set(sr.map(r => r.date.slice(0, 7)))].sort().slice(-6);
   const mIn = {}, mOut = {}; ams.forEach(m => { mIn[m] = 0; mOut[m] = 0; });
   sr.forEach(r => { const m = r.date.slice(0, 7); if (ams.includes(m)) { mIn[m] += +r.inc || 0; mOut[m] += +r.dec || 0; } });
   const tc = gchart('c-cstrend');
   if (tc) tc.setOption({ backgroundColor: 'transparent', tooltip: { trigger: 'axis' }, legend: { data: ['寄入', '取出'], textStyle: { color: '#9aa9c1' }, top: 0 }, grid: { left: 55, right: 15, top: 30, bottom: 40 }, xAxis: { type: 'category', data: ams, axisLabel: { color: '#9aa9c1', fontSize: 10 }, axisLine: { lineStyle: { color: 'rgba(0,229,255,0.18)' } } }, yAxis: { type: 'value', axisLabel: { color: '#9aa9c1' }, splitLine: { lineStyle: { color: 'rgba(0,229,255,0.07)' } } }, series: [{ name: '寄入', type: 'bar', data: ams.map(m => mIn[m]), itemStyle: { color: 'rgba(255,193,7,.7)' }, barMaxWidth: 18 }, { name: '取出', type: 'bar', data: ams.map(m => mOut[m]), itemStyle: { color: 'rgba(255,152,0,.7)' }, barMaxWidth: 18 }] });
-  const cm = {}; D.csrecs.forEach(r => { if (!r.summary) return; if (!cm[r.summary]) cm[r.summary] = 0; cm[r.summary] += +r.inc || 0; });
-  const cl = Object.entries(cm).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  const mgrMap = {}; D.csrecs.forEach(r => { if (!r.manager) return; if (!mgrMap[r.manager]) mgrMap[r.manager] = 0; mgrMap[r.manager] += +r.inc || 0; });
+  const cl = Object.entries(mgrMap).sort((a, b) => b[1] - a[1]).slice(0, 10);
   const cc = gchart('c-cscust');
-  if (cc) cc.setOption({ backgroundColor: 'transparent', tooltip: { trigger: 'axis' }, grid: { left: 115, right: 55, top: 10, bottom: 20 }, xAxis: { type: 'value', axisLabel: { color: '#9aa9c1' }, splitLine: { lineStyle: { color: 'rgba(0,229,255,0.07)' } } }, yAxis: { type: 'category', data: cl.map(([k]) => k.slice(0, 12)), axisLabel: { color: '#9aa9c1', fontSize: 10 } }, series: [{ type: 'bar', data: cl.map(([, v]) => v), label: { show: true, position: 'right', color: '#9aa9c1', fontSize: 10 }, itemStyle: { color: new echarts.graphic.LinearGradient(1, 0, 0, 0, [{ offset: 0, color: '#ff9800' }, { offset: 1, color: '#ffc107' }]) }, barMaxWidth: 13 }] });
+  if (cc) cc.setOption({ backgroundColor: 'transparent', tooltip: { trigger: 'axis' }, grid: { left: 80, right: 55, top: 10, bottom: 20 }, xAxis: { type: 'value', axisLabel: { color: '#9aa9c1' }, splitLine: { lineStyle: { color: 'rgba(0,229,255,0.07)' } } }, yAxis: { type: 'category', data: cl.map(([k]) => k.slice(0, 12)), axisLabel: { color: '#9aa9c1', fontSize: 10 } }, series: [{ type: 'bar', data: cl.map(([, v]) => v), label: { show: true, position: 'right', color: '#9aa9c1', fontSize: 10 }, itemStyle: { color: new echarts.graphic.LinearGradient(1, 0, 0, 0, [{ offset: 0, color: '#ff9800' }, { offset: 1, color: '#ffc107' }]) }, barMaxWidth: 13 }] });
 }
 
 // =========================================================
@@ -1078,9 +1601,10 @@ function rDD() {
       <div class="ddb">
         <div style="font-size:13px;font-weight:600;color:var(--cyan);margin-bottom:6px">📦 ${prod}</div>
         <div class="tw"><table>
-          <thead><tr><th>摘要/客户</th><th>入库</th><th>出库</th><th>期末结存</th><th>客户经理</th><th>备注</th></tr></thead>
+          <thead><tr><th>客户/摘要</th><th>借货缘由</th><th>入库</th><th>出库</th><th>期末结存</th><th>客户经理</th><th>备注</th></tr></thead>
           <tbody>${rs.map(r => `<tr>
             <td>${r.summary || ''}</td>
+            <td>${r.reason ? `<span class="reason-tag">${r.reason}</span>` : '-'}</td>
             <td>${+r.inc > 0 ? `<span style="color:var(--green)">+${fn(r.inc)}</span>` : '-'}</td>
             <td>${+r.out > 0 ? `<span style="color:var(--red)">-${fn(r.out)}</span>` : '-'}</td>
             <td>${r.balance != null && r.balance !== '' ? `<b>${fn(r.balance)}</b>` : '-'}</td>
@@ -1142,6 +1666,7 @@ function oBM(id, defProd) {
       document.getElementById('bm-op').value = r.operator || '';
       document.getElementById('bm-type').value = r.type || 'out';
       document.getElementById('bm-rem').value = r.remark || '';
+      document.getElementById('bm-reason').value = r.reason || '';
     }
   } else {
     document.getElementById('bm-date').value = today;
@@ -1150,6 +1675,7 @@ function oBM(id, defProd) {
     document.getElementById('bm-in').value = 0; document.getElementById('bm-out').value = 0;
     document.getElementById('bm-bal').value = ''; document.getElementById('bm-op').value = '';
     document.getElementById('bm-type').value = 'out'; document.getElementById('bm-rem').value = '';
+    document.getElementById('bm-reason').value = '';
   }
   document.getElementById('bm').classList.add('show');
 }
@@ -1165,11 +1691,11 @@ async function saveBR() {
   const op = document.getElementById('bm-op').value || '仓管';
   const type = document.getElementById('bm-type').value || 'out';
   const rem = document.getElementById('bm-rem').value;
+  const reason = document.getElementById('bm-reason').value;
   if (!date || !prod) { toast('请填写日期和品类名称', 'error'); return; }
-  const rec = { _id: _editBId || uid(), date, product: prod, summary: sum, inc, out, balance: bal, operator: op, type, remark: rem };
+  const rec = { _id: _editBId || uid(), date, product: prod, summary: sum, inc, out, balance: bal, operator: op, type, remark: rem, reason };
   try {
     await apiPost('/api/borrow', rec);
-    // Update will come via SSE, but also update locally for responsiveness
     if (_editBId) {
       const idx = D.borrows.findIndex(r => r._id === _editBId);
       if (idx >= 0) D.borrows[idx] = rec;
@@ -1178,6 +1704,8 @@ async function saveBR() {
     }
     if (op && !D.mgrs.includes(op) && op !== '系统') D.mgrs.push(op);
     closeMo('bm'); rBT(); rOverview(); rHKPI();
+    const b1d = document.getElementById('b1-date');
+    if (b1d && b1d.value) { rDayInv(); rMgrDayRecords(b1d.value); }
     toast(_editBId ? '记录已更新' : '记录已添加', 'success');
   } catch (e) { toast('保存失败: ' + e.message, 'error'); }
 }
@@ -1189,11 +1717,12 @@ async function delB(id) {
     const idx = D.borrows.findIndex(r => r._id === id);
     if (idx >= 0) D.borrows.splice(idx, 1);
     rBT(); rOverview(); rHKPI();
+    const b1d = document.getElementById('b1-date');
+    if (b1d && b1d.value) { rDayInv(); rMgrDayRecords(b1d.value); }
     toast('已删除', 'warning');
   } catch (e) { toast('删除失败: ' + e.message, 'error'); }
 }
 
-// Product modal
 function openProductModal(idx) {
   _editPId = idx;
   document.getElementById('pm-title').textContent = idx >= 0 ? '✏️ 编辑品种' : '📦 新增库存品种';
@@ -1215,16 +1744,24 @@ async function saveProd() {
   } catch (e) { toast('保存失败: ' + e.message, 'error'); }
 }
 
-// Consign product modal
+function applyCSPreset() {
+  const v = document.getElementById('csm-preset').value;
+  if (v) document.getElementById('csm-name').value = v;
+}
+
 function oCSM(idx) {
+  document.getElementById('csm-preset').value = '';
   document.getElementById('csm-name').value = ''; document.getElementById('csm-unit').value = '件'; document.getElementById('csm-init').value = 0; document.getElementById('csm-rem').value = '';
   document.getElementById('csm').classList.add('show');
 }
 
 async function saveCSProd() {
-  const name = document.getElementById('csm-name').value.trim();
+  const preset = document.getElementById('csm-preset').value;
+  const customName = document.getElementById('csm-name').value.trim();
+  const name = customName || preset;
   if (!name) { toast('请填写品种名称', 'error'); return; }
-  const p = { id: Date.now(), name, unit: document.getElementById('csm-unit').value || '件', initQty: +document.getElementById('csm-init').value || 0, remark: document.getElementById('csm-rem').value };
+  if (D.csprods.find(p => p.name === name)) { toast('该品种已存在', 'warning'); return; }
+  const p = { id: Date.now() + Math.random(), name, unit: document.getElementById('csm-unit').value || '件', initQty: +document.getElementById('csm-init').value || 0, remark: document.getElementById('csm-rem').value };
   try {
     await apiPost('/api/csprod', p);
     D.csprods.push(p);
@@ -1233,16 +1770,18 @@ async function saveCSProd() {
   } catch (e) { toast('保存失败: ' + e.message, 'error'); }
 }
 
-// Consign record modal
 function oCRM(id) {
   _editCSId = id === -1 ? '' : id;
   document.getElementById('crm-title').textContent = _editCSId ? '✏️ 编辑寄存记录' : '📋 录入寄存变动';
   document.getElementById('crm-prod').innerHTML = D.csprods.map(p => `<option>${p.name}</option>`).join('');
+  const dl2 = document.getElementById('mgr-dl2');
+  if (dl2) dl2.innerHTML = D.mgrs.map(m => `<option value="${m}">`).join('');
   const today = new Date().toISOString().slice(0, 10);
   if (_editCSId) {
     const r = D.csrecs.find(c => c._id === _editCSId);
     if (r) {
       document.getElementById('crm-date').value = r.date; document.getElementById('crm-prod').value = r.product;
+      document.getElementById('crm-mgr').value = r.manager || '';
       document.getElementById('crm-vch').value = r.voucher || ''; document.getElementById('crm-sum').value = r.summary || '';
       document.getElementById('crm-open').value = r.open != null ? r.open : ''; document.getElementById('crm-inc').value = r.inc || 0;
       document.getElementById('crm-dec').value = r.dec || 0; document.getElementById('crm-close').value = r.close != null ? r.close : '';
@@ -1250,6 +1789,7 @@ function oCRM(id) {
     }
   } else {
     document.getElementById('crm-date').value = today; document.getElementById('crm-vch').value = '';
+    document.getElementById('crm-mgr').value = '';
     document.getElementById('crm-sum').value = ''; document.getElementById('crm-open').value = '';
     document.getElementById('crm-inc').value = 0; document.getElementById('crm-dec').value = 0;
     document.getElementById('crm-close').value = ''; document.getElementById('crm-rem').value = '';
@@ -1263,8 +1803,10 @@ async function saveCR() {
   if (!date || !prod) { toast('请填写日期和品种名称', 'error'); return; }
   const openV = document.getElementById('crm-open').value;
   const closeV = document.getElementById('crm-close').value;
+  const mgr = document.getElementById('crm-mgr').value.trim();
   const rec = {
-    _id: _editCSId || uid(), date, product: prod, voucher: document.getElementById('crm-vch').value,
+    _id: _editCSId || uid(), date, product: prod, manager: mgr,
+    voucher: document.getElementById('crm-vch').value,
     summary: document.getElementById('crm-sum').value,
     open: openV !== '' ? +openV : null, inc: +document.getElementById('crm-inc').value || 0, dec: +document.getElementById('crm-dec').value || 0,
     close: closeV !== '' ? +closeV : null, remark: document.getElementById('crm-rem').value
@@ -1277,7 +1819,8 @@ async function saveCR() {
     } else {
       D.csrecs.push(rec);
     }
-    closeMo('crm'); rCSKPI(); rCSCards(); rCSCharts(); rCT(); rCCT();
+    if (mgr && !D.mgrs.includes(mgr)) D.mgrs.push(mgr);
+    closeMo('crm'); rCSKPI(); rCSCards(); rCSCharts(); rCT(); rCSMgrDetail(); rCSPeriod();
     toast(_editCSId ? '记录已更新' : '记录已添加', 'success');
   } catch (e) { toast('保存失败: ' + e.message, 'error'); }
 }
@@ -1288,7 +1831,7 @@ async function delCS(id) {
     await apiDelete('/api/csrec/' + id);
     const idx = D.csrecs.findIndex(r => r._id === id);
     if (idx >= 0) D.csrecs.splice(idx, 1);
-    rCSKPI(); rCSCards(); rCSCharts(); rCT(); rCCT();
+    rCSKPI(); rCSCards(); rCSCharts(); rCT(); rCSMgrDetail(); rCSPeriod();
     toast('已删除', 'warning');
   } catch (e) { toast('删除失败: ' + e.message, 'error'); }
 }
@@ -1299,36 +1842,39 @@ async function delCS(id) {
 function genReport() {
   const inv = compCSInv();
   const today = new Date().toLocaleDateString('zh-CN');
+  const orderedProds = [
+    ...FIXED_CS_PRODS.map(fp => D.csprods.find(p => p.name === fp.name)).filter(Boolean),
+    ...D.csprods.filter(p => !FIXED_CS_PRODS.find(fp => fp.name === p.name))
+  ];
   let html = `<div style="font-family:inherit">
     <div style="text-align:center;font-size:16px;font-weight:700;margin-bottom:6px;color:var(--cyan)">湖北盐业集团荆州分公司营销中心</div>
     <div style="text-align:center;font-size:15px;font-weight:600;margin-bottom:12px">寄存货物盘点汇总表</div>
     <div style="font-size:12px;color:var(--sub);margin-bottom:14px">盘点日期：${today} &nbsp;|&nbsp; 数据来源：在线协同系统</div>
     <div class="tw"><table>
-      <thead><tr><th>#</th><th>品种名称</th><th>单位</th><th>期末寄存数量</th><th>累计寄入</th><th>累计取出</th><th>状态</th><th>备注</th></tr></thead>
+      <thead><tr><th>#</th><th>品种名称</th><th>单位</th><th>累计寄入</th><th>累计取出</th><th>当前寄存量</th><th>状态</th><th>备注</th></tr></thead>
       <tbody>
-        ${D.csprods.map((p, i) => {
-    const v = inv[p.name] || { end: 0, inc: 0, dec: 0 };
-    return `<tr>
+        ${orderedProds.map((p, i) => {
+          const v = inv[p.name] || { end: 0, inc: 0, dec: 0 };
+          return `<tr>
             <td>${i + 1}</td>
-            <td><b>${p.name.replace('寄存', '')}</b></td>
+            <td><b>${csShortName(p.name)}</b></td>
             <td>${p.unit || '件'}</td>
-            <td><b style="color:${v.end > 0 ? 'var(--gold)' : 'var(--red)'}">${fn(v.end)}</b></td>
-            <td style="color:var(--green)">${fn(v.inc)}</td>
+            <td style="color:var(--gold)">${fn(v.inc)}</td>
             <td style="color:var(--orange)">${fn(v.dec)}</td>
+            <td><b style="color:${v.end > 0 ? 'var(--gold)' : 'var(--red)'}">${fn(v.end)}</b></td>
             <td><span class="badge ${v.end > 0 ? 'bau' : 'bp'}">${v.end > 0 ? '在存' : '已清零'}</span></td>
             <td style="color:var(--muted)">${p.remark || ''}</td>
           </tr>`;
-  }).join('')}
+        }).join('')}
         <tr style="background:rgba(0,229,255,.05);font-weight:600">
-          <td colspan="3" style="text-align:right;color:var(--cyan)">合计（注：品类单位不同，请参考各行）</td>
-          <td style="color:var(--gold)">${fn(Object.values(inv).reduce((s, v) => s + (v.end || 0), 0))}</td>
-          <td style="color:var(--green)">${fn(Object.values(inv).reduce((s, v) => s + (v.inc || 0), 0))}</td>
+          <td colspan="3" style="text-align:right;color:var(--cyan)">合计</td>
+          <td style="color:var(--gold)">${fn(Object.values(inv).reduce((s, v) => s + (v.inc || 0), 0))}</td>
           <td style="color:var(--orange)">${fn(Object.values(inv).reduce((s, v) => s + (v.dec || 0), 0))}</td>
+          <td style="color:var(--gold)">${fn(Object.values(inv).reduce((s, v) => s + (v.end || 0), 0))}</td>
           <td colspan="2"></td>
         </tr>
       </tbody>
     </table></div>
-    <div style="margin-top:14px;font-size:12px;color:var(--sub)">注：产品各单位不同（件/瓶/箱），合计仅供参考，请分品种查看各行详细数量</div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:20px;font-size:12px">
       <div>制表人：__________</div><div>审核人：__________</div><div>日期：${today}</div>
     </div>
@@ -1348,9 +1894,13 @@ function printReport() {
 
 function exportReportXLSX() {
   const inv = compCSInv();
-  const rows = [['品种名称', '单位', '期末寄存数量', '累计寄入', '累计取出', '状态', '备注']];
-  D.csprods.forEach(p => { const v = inv[p.name] || { end: 0, inc: 0, dec: 0 }; rows.push([p.name.replace('寄存', ''), p.unit || '件', v.end, v.inc, v.dec, v.end > 0 ? '在存' : '已清零', p.remark || '']); });
-  rows.push(['合计（注意单位不同）', '', Object.values(inv).reduce((s, v) => s + (v.end || 0), 0), Object.values(inv).reduce((s, v) => s + (v.inc || 0), 0), Object.values(inv).reduce((s, v) => s + (v.dec || 0), 0), '', '']);
+  const orderedProds = [
+    ...FIXED_CS_PRODS.map(fp => D.csprods.find(p => p.name === fp.name)).filter(Boolean),
+    ...D.csprods.filter(p => !FIXED_CS_PRODS.find(fp => fp.name === p.name))
+  ];
+  const rows = [['品种名称', '单位', '累计寄入', '累计取出', '当前寄存量', '状态', '备注']];
+  orderedProds.forEach(p => { const v = inv[p.name] || { end: 0, inc: 0, dec: 0 }; rows.push([csShortName(p.name), p.unit || '件', v.inc, v.dec, v.end, v.end > 0 ? '在存' : '已清零', p.remark || '']); });
+  rows.push(['合计', '', Object.values(inv).reduce((s, v) => s + (v.inc || 0), 0), Object.values(inv).reduce((s, v) => s + (v.dec || 0), 0), Object.values(inv).reduce((s, v) => s + (v.end || 0), 0), '', '']);
   const ws = XLSX.utils.aoa_to_sheet(rows);
   const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '寄存盘点汇总表');
   XLSX.writeFile(wb, `寄存盘点汇总表_${new Date().toISOString().slice(0, 10)}.xlsx`);
@@ -1374,7 +1924,7 @@ function rPg(id, cur, total, cb) {
 }
 
 // =========================================================
-// IMPORT EXCEL (client-side parsing with SheetJS)
+// IMPORT EXCEL
 // =========================================================
 async function importBorrowExcel(input) {
   const file = input.files[0]; if (!file) return;
@@ -1384,12 +1934,10 @@ async function importBorrowExcel(input) {
     const wb = XLSX.read(buf, { type: 'array' });
     let added = 0;
     const prodNames = D.prods.map(p => p.name);
-
     wb.SheetNames.forEach(sn => {
       const ws = wb.Sheets[sn];
       const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
       if (!rows.length) return;
-
       let hRow = -1;
       for (let i = 0; i < Math.min(5, rows.length); i++) {
         const r = rows[i].join('');
@@ -1397,40 +1945,31 @@ async function importBorrowExcel(input) {
       }
       if (hRow < 0 && rows.length > 1) hRow = 0;
       if (hRow < 0) return;
-
       const headers = rows[hRow];
       for (let i = hRow + 1; i < rows.length; i++) {
         const row = rows[i];
         if (!row.some(c => c !== '' && c !== null && c !== undefined)) continue;
-
         const rec = { _id: uid() };
         headers.forEach((h, ci) => {
           const hStr = String(h || '').trim();
           const val = row[ci];
           if (hStr.includes('时间') || hStr.includes('日期')) rec.date = fd(val) || new Date().toISOString().slice(0, 10);
           else if (hStr.includes('摘要') || hStr.includes('客户')) rec.summary = String(val || '');
+          else if (hStr.includes('缘由') || hStr.includes('原因')) rec.reason = String(val || '');
           else if (hStr.includes('增加') || hStr.includes('入库')) rec.inc = +val || 0;
           else if (hStr.includes('减少') || hStr.includes('出库')) rec.out = +val || 0;
           else if (hStr.includes('结存') || hStr.includes('期末')) rec.balance = val !== '' && val != null ? +val : null;
           else if (hStr.includes('经理') || hStr.includes('操作')) rec.operator = String(val || '仓管');
           else if (hStr.includes('备注')) rec.remark = String(val || '');
         });
-
-        // Check for wide format (product-specific columns)
         let isProdRow = false;
         prodNames.forEach((pn, pi) => {
           const colVal = row[2 + pi];
           if (colVal != null && colVal !== '' && +colVal > 0) {
-            const pr = {
-              _id: uid(), date: rec.date || new Date().toISOString().slice(0, 10),
-              product: pn, summary: rec.summary || '导入记录',
-              inc: 0, out: +colVal, balance: null,
-              operator: rec.operator || '仓管', type: 'out', remark: ''
-            };
-            D.borrows.push(pr); added++; isProdRow = true;
+            D.borrows.push({ _id: uid(), date: rec.date || new Date().toISOString().slice(0, 10), product: pn, summary: rec.summary || '导入记录', inc: 0, out: +colVal, balance: null, operator: rec.operator || '仓管', type: 'out', remark: '', reason: rec.reason || '' });
+            added++; isProdRow = true;
           }
         });
-
         if (!isProdRow && rec.date && (rec.summary || rec.inc || rec.out)) {
           if (!rec.product) rec.product = D.prods[0] ? D.prods[0].name : '500g碘盐（九凤来）';
           if (!rec.operator) rec.operator = '仓管';
@@ -1439,13 +1978,9 @@ async function importBorrowExcel(input) {
         }
       }
     });
-
-    scheduleSave();
-    rBT(); rOverview(); rHKPI();
-    toast('已导入 ' + added + ' 条借货记录（已同步至所有终端）', 'success', 4000);
-  } catch (err) {
-    toast('导入失败: ' + err.message, 'error', 5000);
-  }
+    scheduleSave(); rBT(); rOverview(); rHKPI();
+    toast('已导入 ' + added + ' 条借货记录', 'success', 4000);
+  } catch (err) { toast('导入失败: ' + err.message, 'error', 5000); }
   input.value = '';
 }
 
@@ -1456,52 +1991,27 @@ async function importConsignExcel(input) {
     const buf = await file.arrayBuffer();
     const wb = XLSX.read(buf, { type: 'array' });
     let added = 0;
-
     const summarySheet = wb.SheetNames.find(n => n.includes('汇总'));
     wb.SheetNames.forEach(sn => {
       if (sn === summarySheet) return;
       const ws = wb.Sheets[sn];
       const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
       if (!rows || rows.length < 2) return;
-
       let prodName = sn;
-      if (rows[0] && rows[0][0]) {
-        const t = String(rows[0][0]);
-        const m = t.match(/营销中心\s+(.+)/);
-        if (m) prodName = m[1].trim();
-      }
-
-      if (!D.csprods.find(p => p.name === prodName)) {
-        D.csprods.push({ id: Date.now() + Math.random(), name: prodName, unit: '件', initQty: 0, remark: '从Excel导入' });
-      }
-
+      if (rows[0] && rows[0][0]) { const t = String(rows[0][0]); const m = t.match(/营销中心\s+(.+)/); if (m) prodName = m[1].trim(); }
+      if (!D.csprods.find(p => p.name === prodName)) D.csprods.push({ id: Date.now() + Math.random(), name: prodName, unit: '件', initQty: 0, remark: '从Excel导入' });
       const hRowIdx = rows.findIndex(r => r.some(c => String(c || '').includes('时间') || String(c || '').includes('日期')));
       const dataStart = (hRowIdx >= 0 ? hRowIdx : 1) + 1;
-
       for (let i = dataStart; i < rows.length - 1; i++) {
         const row = rows[i];
         if (!row[0]) continue;
-
-        const rec = { _id: uid(), date: '', product: prodName, voucher: '', summary: '', open: null, inc: 0, dec: 0, close: null, remark: '' };
-        rec.date = fd(row[0]) || new Date().toISOString().slice(0, 10);
-        rec.voucher = String(row[1] || '');
-        rec.summary = String(row[2] || '');
-        rec.open = row[3] != null && row[3] !== '' ? +row[3] : null;
-        rec.inc = +row[4] || 0;
-        rec.dec = +row[5] || 0;
-        rec.close = row[6] != null && row[6] !== '' ? +row[6] : null;
-        rec.remark = String(row[7] || '');
-
+        const rec = { _id: uid(), date: fd(row[0]) || new Date().toISOString().slice(0, 10), product: prodName, manager: row[8] ? String(row[8]) : '', voucher: String(row[1] || ''), summary: String(row[2] || ''), open: row[3] != null && row[3] !== '' ? +row[3] : null, inc: +row[4] || 0, dec: +row[5] || 0, close: row[6] != null && row[6] !== '' ? +row[6] : null, remark: String(row[7] || '') };
         if (rec.summary) { D.csrecs.push(rec); added++; }
       }
     });
-
-    scheduleSave();
-    rCSKPI(); rCSCards(); rCSCharts(); rCT(); rCCT();
-    toast('已导入 ' + added + ' 条寄存记录（已同步至所有终端）', 'success', 4000);
-  } catch (err) {
-    toast('导入失败: ' + err.message, 'error', 5000);
-  }
+    scheduleSave(); rCSKPI(); rCSCards(); rCSCharts(); rCT(); rCSMgrDetail(); rCSPeriod();
+    toast('已导入 ' + added + ' 条寄存记录', 'success', 4000);
+  } catch (err) { toast('导入失败: ' + err.message, 'error', 5000); }
   input.value = '';
 }
 
@@ -1510,19 +2020,19 @@ async function importConsignExcel(input) {
 // =========================================================
 function expBCSV() {
   const list = getFilBorrows();
-  const rows = [['日期', '品类名称', '摘要/客户', '入库(件)', '出库(件)', '期末结存', '客户经理', '备注']];
-  list.forEach(r => rows.push([r.date, r.product, r.summary || '', r.inc || 0, r.out || 0, r.balance != null ? r.balance : '', r.operator || '', r.remark || '']));
+  const rows = [['日期', '品类名称', '客户/摘要', '借货缘由', '入库(件)', '出库(件)', '期末结存', '客户经理', '备注']];
+  list.forEach(r => rows.push([r.date, r.product, r.summary || '', r.reason || '', r.inc || 0, r.out || 0, r.balance != null ? r.balance : '', r.operator || '', r.remark || '']));
   downloadCSV(rows, '借货进出库记录.csv');
 }
 
 function expCSCSV() {
   const list = getFilCSRecs();
-  const rows = [['日期', '品种名称', '凭证号', '摘要/客户', '期初', '寄入', '取出', '期末', '备注']];
-  list.forEach(r => rows.push([r.date, r.product, r.voucher || '', r.summary || '', r.open != null ? r.open : '', r.inc || 0, r.dec || 0, r.close != null ? r.close : '', r.remark || '']));
+  const rows = [['日期', '品种名称', '客户经理', '凭证号', '客户/摘要', '期初', '寄入', '取出', '期末', '备注']];
+  list.forEach(r => rows.push([r.date, r.product, r.manager || '', r.voucher || '', r.summary || '', r.open != null ? r.open : '', r.inc || 0, r.dec || 0, r.close != null ? r.close : '', r.remark || '']));
   downloadCSV(rows, '寄存记录明细.csv');
 }
 
-function expInvCSV() {
+function exportInvCSV() {
   const inv = compInv();
   const rows = [['品类名称', '产品类别', '上期结存', '本期入库', '本期出库', '期末结存', '周转率', '库存状态']];
   Object.entries(inv).forEach(([n, v]) => { const st = stockStatus(v.end, v.warn); rows.push([n, v.cat, v.prev, v.inc, v.dec, v.end, turnover(v.inc, v.dec, v.end) + ' 次/年', st.label]); });
@@ -1538,8 +2048,8 @@ function expLCSV() {
     if (pf && r.product !== pf) return false;
     return true;
   }).sort((a, b) => b.date.localeCompare(a.date));
-  const rows = [['日期', '品类名称', '类别', '摘要', '入库', '出库', '期末结存', '客户经理', '备注']];
-  list.forEach(r => { const pObj = D.prods.find(p => p.name === r.product); rows.push([r.date, r.product, pObj?.cat || '', r.summary || '', r.inc || 0, r.out || 0, r.balance != null ? r.balance : '', r.operator || '', r.remark || '']); });
+  const rows = [['日期', '品类名称', '类别', '客户/摘要', '借货缘由', '入库', '出库', '期末结存', '客户经理', '备注']];
+  list.forEach(r => { const pObj = D.prods.find(p => p.name === r.product); rows.push([r.date, r.product, pObj?.cat || '', r.summary || '', r.reason || '', r.inc || 0, r.out || 0, r.balance != null ? r.balance : '', r.operator || '', r.remark || '']); });
   downloadCSV(rows, '实时库存台账.csv');
 }
 
@@ -1566,7 +2076,7 @@ async function importJSON(input) {
     try {
       const data = JSON.parse(e.target.result);
       await kvdbPut(data);
-      D = data;
+      D = data; ensureFixedCSProds();
       lastSyncTime = new Date(D.updatedAt || 0).getTime();
       refreshCurrentTab();
       toast('数据已恢复并同步至云端', 'success');
@@ -1577,9 +2087,9 @@ async function importJSON(input) {
 }
 
 async function resetData() {
-  if (!confirm('确认重置所有数据？此操作不可撤销！所有终端将同步重置。')) return;
+  if (!confirm('确认重置所有数据？此操作不可撤销！')) return;
   try {
-    D = getDefaultData();
+    D = getDefaultData(); ensureFixedCSProds();
     await kvdbPut(D);
     lastSyncTime = new Date(D.updatedAt).getTime();
     refreshCurrentTab();
@@ -1587,38 +2097,27 @@ async function resetData() {
   } catch (e) { toast('重置失败: ' + e.message, 'error'); }
 }
 
-// =========================================================
-// KEYBOARD SHORTCUTS
-// =========================================================
 document.addEventListener('keydown', e => {
   if (e.ctrlKey && e.key >= '1' && e.key <= '5') { e.preventDefault(); sTab(+e.key - 1); }
   if (e.ctrlKey && e.key === 's') { e.preventDefault(); toast('数据自动同步至云端', 'success'); }
   if (e.key === 'Escape') { document.querySelectorAll('.mo.show').forEach(m => m.classList.remove('show')); }
 });
 
-// =========================================================
-// MAIN INIT
-// =========================================================
 window.addEventListener('load', async () => {
   const ok = await loadData();
   if (ok) {
     document.getElementById('loadingOverlay').style.display = 'none';
     clock(); setInterval(clock, 1000);
-    rHKPI();
-    sTab(0);
+    rHKPI(); sTab(0);
     const today = new Date().toISOString().slice(0, 10);
     const ddp = document.getElementById('dd-date'); if (ddp) ddp.value = today;
-    populateHMMonths();
-    // Cloud sync: poll every 5 seconds for multi-device updates
+    const b1d = document.getElementById('b1-date'); if (b1d) b1d.value = today;
+    const cspd = document.getElementById('cs-period-date'); if (cspd) cspd.value = today;
+    populateHMMonths(); populateCSPeriodMonths();
     setInterval(pollSync, 5000);
-    toast('系统已连接云端，多端实时同步已启用', 'success', 3000);
+    toast('系统已连接云端，多端实时同步已启用 v4.0', 'success', 3000);
   } else {
-    document.getElementById('loadingOverlay').innerHTML = `
-      <div style="color:var(--red);font-size:16px;text-align:center">
-        <div style="font-size:48px;margin-bottom:10px">⚠️</div>
-        无法连接云端数据库<br>
-        <span style="font-size:12px;color:var(--sub)">请检查网络连接后刷新页面</span>
-      </div>`;
+    document.getElementById('loadingOverlay').innerHTML = `<div style="color:var(--red);font-size:16px;text-align:center"><div style="font-size:48px;margin-bottom:10px">⚠️</div>无法连接云端数据库<br><span style="font-size:12px;color:var(--sub)">请检查网络连接后刷新页面</span></div>`;
   }
 });
 </script>
